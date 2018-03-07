@@ -70,7 +70,7 @@ class Discriminator(torch.nn.Module):
 
 
 			# Batch normalization
-			if i != 0 and batch_norm:
+			if i != 0:
 				bn_name = 'bn' + str(i + 1)
 				self.hidden_layer.add_module(bn_name, torch.nn.BatchNorm2d(num_filters[i]))
 

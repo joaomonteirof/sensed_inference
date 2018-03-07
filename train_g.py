@@ -33,14 +33,14 @@ if args.cuda:
 
 transform = transforms.Compose([transforms.Resize((64, 64)), transforms.ToTensor()])
 
-train_loader = torch.utils.data.DataLoader(datasets.MNIST('./data', train=True, download=True, transform=transforms.ToTensor()), batch_size=args.batch_size, shuffle=True, **kwargs)
+train_loader = torch.utils.data.DataLoader(datasets.MNIST('./data', train=True, download=True, transform=transform), batch_size=args.batch_size, shuffle=True)
 
 generator = model.Generator(100, [1024, 512, 256, 128], 1).train()
 discriminator = model.Discriminator(1, [128, 256, 512, 1024], 1, optim.Adam, args.lr, (args.beta1, args.beta2)).train()
 
 if args.cuda:
 	generator = generator.cuda()
-	dicriminator = dicriminator.cuda()
+	dicriminator = discriminator.cuda()
 
 optimizer = optim.Adam(generator.parameters(), lr=args.lr, betas=(args.beta1, args.beta2))
 
