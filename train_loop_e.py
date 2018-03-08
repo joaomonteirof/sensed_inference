@@ -76,7 +76,7 @@ class TrainLoop(object):
 
 		out = self.generator.forward(z)
 
-		loss_e = self.compute_loss(out, x, z)
+		loss_e = self.compute_loss(out, x, z.squeeze())
 
 		self.optimizer.zero_grad()
 		loss_e.backward()
@@ -87,8 +87,8 @@ class TrainLoop(object):
 	def compute_loss(self, out_, x_, z_):
 		total_loss = 0
 		for i in range(out_.size(0)):
-			total_loss += ( torch.mm(self.A, out_[i].view(-1,1)) - x_[i].view(-1, 1) ).norm(2)
-		return total_loss/(i+1) + 0.1*z.norm(2)
+			total_loss += ( torch.mm(self.A, out_[i].view(-1,1)) - x_[i].view(-1, 1) ).norm(2) + 0.1*z_[i].norm(2)
+		return total_loss/(i+1)
 
 	def checkpointing(self):
 
@@ -100,11 +100,7 @@ class TrainLoop(object):
 		'total_iters': self.total_iters,
 		'A': self.A,
 		'cur_epoch': self.cur_epoch}
-		torch.save(ckpt, self.save_epoch_fmt_gen.format(self.cur_epoch))
-
-		ckpt = {'model_state': self.encoder.state_dict(),
-		'optimizer_state': self.encoder.optimizer.state_dict()}
-		torch.save(ckpt, self.save_epoch_fmt_disc.format(self.cur_epoch))
+		torch.save(ckpt, self.save_epoch_fmt.format(self.cur_epoch))
 
 	def load_checkpoint(self, epoch):
 
@@ -122,10 +118,6 @@ class TrainLoop(object):
 			self.total_iters = ckpt['total_iters']
 			self.cur_epoch = ckpt['cur_epoch']
 			self.A = ckpt['A']
-
-			ckpt = torch.load(self.save_epoch_fmt_disc.format(epoch))
-			self.encoder.load_state_dict(ckpt['model_state'])
-			self.encoder.optimizer.load_state_dict(ckpt['optimizer_state'])
 
 		else:
 			print('No checkpoint found at: {}'.format(ckpt))
