@@ -29,12 +29,18 @@ class TrainLoop(object):
 		self.total_iters = 0
 		self.cur_epoch = 0
 
+		self.pool = torch.nn.MaxPool2d(2)
+
+		self.A = 0
+
+		'''
 		A = torch.normal(torch.normal(means=torch.zeros(64*64, 64*64), std=torch.ones(64*64, 64*64)/(64*64)))
 
 		if self.cuda_mode:
 			A = A.cuda()
 
 		self.A = Variable(A)
+		'''
 
 		if checkpoint_epoch is not None:
 			self.load_checkpoint(checkpoint_epoch)
@@ -70,13 +76,14 @@ class TrainLoop(object):
 		if self.cuda_mode:
 			x = x.cuda()
 
-		x = Variable(x)
+		y = self.pool(Variable(x))
 
-		z = self.model.forward(x).unsqueeze(-1).unsqueeze(-1)
+		z = self.model.forward(y).unsqueeze(-1).unsqueeze(-1)
 
 		out = self.generator.forward(z)
 
-		loss_e = self.compute_loss(out, x, z.squeeze())
+		#loss_e = self.compute_loss(out, x, z.squeeze())
+		loss_e = F.mse_loss(self.pool(out), self.pool(x)) + 0.1*z.squeeze().norm(2)/z.numel()
 
 		self.optimizer.zero_grad()
 		loss_e.backward()

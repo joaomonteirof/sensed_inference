@@ -31,12 +31,14 @@ torch.manual_seed(args.seed)
 if args.cuda:
 	torch.cuda.manual_seed(args.seed)
 
-transform = transforms.Compose([transforms.Resize((64, 64)), transforms.ToTensor()])
+transform = transforms.Compose([transforms.Resize((64, 64)), transforms.RandomHorizontalFlip(), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
-train_loader = torch.utils.data.DataLoader(datasets.MNIST('./data', train=True, download=True, transform=transform), batch_size=args.batch_size, shuffle=True)
+celebA_data = datasets.ImageFolder(args.data_path, transform = transform)
 
-generator = model.Generator(100, [1024, 512, 256, 128], 1).train()
-discriminator = model.Discriminator(1, [128, 256, 512, 1024], 1, optim.Adam, args.lr, (args.beta1, args.beta2)).train()
+train_loader = torch.utils.data.DataLoader(celebA_data, batch_size=args.batch_size, shuffle=True, num_workers=args.workers)
+
+generator = model.Generator(100, [1024, 512, 256, 128], 3).train()
+discriminator = model.Discriminator(3, [128, 256, 512, 1024], 1, optim.Adam, args.lr, (args.beta1, args.beta2)).train()
 
 if args.cuda:
 	generator = generator.cuda()

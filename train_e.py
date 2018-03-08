@@ -33,12 +33,14 @@ torch.manual_seed(args.seed)
 if args.cuda:
 	torch.cuda.manual_seed(args.seed)
 
-mnist = datasets.MNIST('./data', train=True, download=True, transform=transforms.Compose([transforms.Resize((64, 64)), lambda x: x.filter(ImageFilter.GaussianBlur(radius=6)), transforms.ToTensor()]))
+transform = transforms.Compose([transforms.Resize((64, 64)), transforms.RandomHorizontalFlip(), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
-train_loader = torch.utils.data.DataLoader(mnist, batch_size=args.batch_size, shuffle=True)
+celebA_data = datasets.ImageFolder(args.data_path, transform = transform)
 
-generator = model.Generator(100, [1024, 512, 256, 128], 1).eval()
-encoder = model.Encoder(1, [128, 256, 512, 1024], 100).train()
+train_loader = torch.utils.data.DataLoader(celebA_data, batch_size=args.batch_size, shuffle=True, num_workers=args.workers)
+
+generator = model.Generator(100, [1024, 512, 256, 128], 3).eval()
+encoder = model.Encoder(3, [128, 256, 512, 1024], 100).train()
 
 ckpt_gen = torch.load(args.gen_path, map_location = lambda storage, loc: storage)
 generator.load_state_dict(ckpt_gen['model_state'])

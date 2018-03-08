@@ -106,7 +106,7 @@ class Encoder(torch.nn.Module):
 		for i in range(len(num_filters)):
 			# Convolutional layer
 			if i == 0:
-				conv = nn.Conv2d(1, num_filters[i], kernel_size=4, stride=2, padding=1)
+				conv = nn.Conv2d(input_dim, num_filters[i], kernel_size=4, stride=2, padding=1)
 			else:
 				conv = nn.Conv2d(num_filters[i-1], num_filters[i], kernel_size=4, stride=2, padding=1)
 
@@ -130,7 +130,7 @@ class Encoder(torch.nn.Module):
 		# Output layer
 		self.output_layer = torch.nn.Sequential()
 		# Convolutional layer
-		out = nn.Linear(num_filters[i]*4*4, output_dim)
+		out = nn.Linear(num_filters[i]*2*2, output_dim)
 		self.output_layer.add_module('out', out)
 		# Initializer
 		nn.init.normal(out.weight, mean=0.0, std=0.02)
