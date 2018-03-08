@@ -107,7 +107,7 @@ class TrainLoop(object):
 		loss_G.backward()
 		self.optimizer.step()
 
-		return loss_G.data[0], loss_disc
+		return loss_G.data[0], loss_disc.data[0]
 
 	def checkpointing(self):
 
@@ -140,7 +140,6 @@ class TrainLoop(object):
 			self.history = ckpt['history']
 			self.total_iters = ckpt['total_iters']
 			self.cur_epoch = ckpt['cur_epoch']
-			self.nadir = ckpt['nadir']
 
 			ckpt = torch.load(self.save_epoch_fmt_disc.format(epoch))
 			self.discriminator.load_state_dict(ckpt['model_state'])

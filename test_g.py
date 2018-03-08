@@ -36,7 +36,8 @@ def test_model(model, n_tests, cuda_mode):
 	out = model.forward(z_)
 
 	for i in range(out.size(0)):
-		sample = denorm(out[i].data)
+		#sample = denorm(out[i].data)
+		sample = out[i].data
 		sample = to_pil(sample.cpu())
 		sample.save('sample_{}.png'.format(i+1))
 
@@ -52,7 +53,8 @@ def save_samples(generator, cp_name, cuda_mode, save_dir='./', fig_size=(5, 5)):
 
 	noise = Variable(noise, volatile=True)
 	gen_image = generator(noise)
-	gen_image = denorm(gen_image)
+	#gen_image = denorm(gen_image)
+	gen_image = gen_image
 
 	generator.train()
 
@@ -63,7 +65,7 @@ def save_samples(generator, cp_name, cuda_mode, save_dir='./', fig_size=(5, 5)):
 		ax.axis('off')
 		ax.set_adjustable('box-forced')
 		# Scale to 0-255
-		img = (((img - img.min()) * 255) / (img.max() - img.min())).cpu().data.numpy().transpose(1, 2, 0).astype(np.uint8)
+		img = (((img - img.min()) * 255) / (img.max() - img.min())).cpu().data.numpy().transpose(1, 2, 0).squeeze().astype(np.uint8)
 		# ax.imshow(img.cpu().data.view(image_size, image_size, 3).numpy(), cmap=None, aspect='equal')
 		ax.imshow(img, cmap=None, aspect='equal')
 	plt.subplots_adjust(wspace=0, hspace=0)
@@ -74,7 +76,7 @@ def save_samples(generator, cp_name, cuda_mode, save_dir='./', fig_size=(5, 5)):
 
 	if not os.path.exists(save_dir):
 		os.mkdir(save_dir)
-	save_fn = save_dir + 'CelebA_DCGAN_'+ cp_name + '.png'
+	save_fn = save_dir + 'sensed_inference'+ cp_name + '.png'
 	plt.savefig(save_fn)
 
 	plt.close()
@@ -90,7 +92,7 @@ def plot_learningcurves(history, *keys):
 if __name__ == '__main__':
 
 	# Testing settings
-	parser = argparse.ArgumentParser(description='Testing GANs under max hyper volume training')
+	parser = argparse.ArgumentParser(description='Testing GANs')
 	parser.add_argument('--cp-path', type=str, default=None, metavar='Path', help='Checkpoint/model path')
 	parser.add_argument('--data-path', type=str, default='./data/', metavar='Path', help='Path to data .hdf')
 	parser.add_argument('--n-tests', type=int, default=4, metavar='N', help='number of samples to  (default: 64)')

@@ -3,7 +3,7 @@ import argparse
 import torch
 import torchvision
 import torchvision.transforms as transforms
-from train_loop_g import TrainLoop
+from train_loop_e import TrainLoop
 import torch.optim as optim
 import torchvision.models as models
 import torchvision.datasets as datasets

@@ -72,9 +72,11 @@ class TrainLoop(object):
 
 		x = Variable(x)
 
-		out = self.generator.forward(self.model.forward(x))
+		z = self.model.forward(x).unsqueeze(-1).unsqueeze(-1)
 
-		loss_e = self.compute_loss(out, x)
+		out = self.generator.forward(z)
+
+		loss_e = self.compute_loss(out, x, z)
 
 		self.optimizer.zero_grad()
 		loss_e.backward()
@@ -82,11 +84,11 @@ class TrainLoop(object):
 
 		return loss_e.data[0]
 
-	def compute_loss(self, out, x):
+	def compute_loss(self, out_, x_, z_):
 		total_loss = 0
-		for i in range(out.size(0)):
-			total_loss += ( torch.mm(self.A, out[i].view(-1,1)) - x.view(-1, 1) ).norm(2)
-		return total_loss/(i+1)
+		for i in range(out_.size(0)):
+			total_loss += ( torch.mm(self.A, out_[i].view(-1,1)) - x_[i].view(-1, 1) ).norm(2)
+		return total_loss/(i+1) + 0.1*z.norm(2)
 
 	def checkpointing(self):
 
