@@ -38,7 +38,7 @@ def test_model(generator_, encoder_, data, cuda_mode):
 	out = generator_.forward(encoder_.forward(pooled_data).unsqueeze(-1).unsqueeze(-1))
 
 	for i in range(out.size(0)):
-		high_sample, low_sample = denorm(out[i].data), denorm(data[i])
+		high_sample, low_sample = denorm(out[i].data), denorm(pooled_data.data[i])
 		high_sample, low_sample = to_pil(high_sample.cpu()), to_pil(low_sample.cpu())
 		high_sample.save('highres_sample_{}.png'.format(i+1))
 		low_sample.save('lowres_sample_{}.png'.format(i+1))
