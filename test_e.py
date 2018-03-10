@@ -38,7 +38,7 @@ def test_model(generator_, encoder_, data, cuda_mode):
 	out = generator_.forward(encoder_.forward(pooled_data).unsqueeze(-1).unsqueeze(-1))
 
 	for i in range(out.size(0)):
-		high_sample, low_sample = denorm(out[i].data), denorm(data[i].data)
+		high_sample, low_sample = denorm(out[i].data), denorm(data[i])
 		high_sample, low_sample = to_pil(high_sample.cpu()), to_pil(low_sample.cpu())
 		high_sample.save('highres_sample_{}.png'.format(i+1))
 		low_sample.save('lowres_sample_{}.png'.format(i+1))
@@ -107,8 +107,8 @@ if __name__ == '__main__':
 	if args.gen_path is None or args.enc_path is None:
 		raise ValueError('There is no generator/encoder to load. Use arg --gen-path and --enc-path to indicate the paths!')
 
-	generator = model.Generator(100, [1024, 512, 256, 128], 3)
-	encoder = model.Encoder(3, [128, 256, 512, 1024], 100)
+	generator = model_.Generator(100, [1024, 512, 256, 128], 3)
+	encoder = model_.Encoder(3, [128, 256, 512, 1024], 100)
 
 	ckpt_gen = torch.load(args.gen_path, map_location = lambda storage, loc: storage)
 	generator.load_state_dict(ckpt_gen['model_state'])
@@ -122,7 +122,7 @@ if __name__ == '__main__':
 
 	print('Cuda Mode is: {}'.format(args.cuda))
 
-	history = ckpt['history']
+	history = ckpt_enc['history']
 
 	if not args.no_plots:
 		plot_learningcurves(history, 'loss')

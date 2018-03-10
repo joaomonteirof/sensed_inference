@@ -83,7 +83,7 @@ class TrainLoop(object):
 		out = self.generator.forward(z)
 
 		#loss_e = self.compute_loss(out, x, z.squeeze())
-		loss_e = F.mse_loss(self.pool(out), self.pool(x)) + 0.1*z.squeeze().norm(2)/z.numel()
+		loss_e = F.mse_loss(self.pool(out), y.detach()) + 0.1*z.squeeze().norm(2)/z.numel()
 
 		self.optimizer.zero_grad()
 		loss_e.backward()
